@@ -3,10 +3,10 @@
 from network import Network
 import numpy as np
 from tqdm.notebook import tqdm
-array_size = 100
-temperature = (10,100) # (node, edge)
-anneal = False
-connectivity = 'NN'
+array_size = 40
+temperature = (10,10) # (node, edge)
+anneal = True
+connectivity = 'bipartite'
 bias_node_list = [(800,1,1000)] # (node, bias, weight)
 TNN = Network((array_size,array_size), connectivity=connectivity, num_states=2, temperature=temperature)
 TNN.set_bias_nodes(bias_node_list)
@@ -34,8 +34,10 @@ for t in tqdm(range(max_time)):
 
         TNN.update_energy_series()
     if anneal:
-        new_temperature = np.max([temperature*(1- 1*t/max_time),1])
-        TNN.set_network_temperature(new_temperature)
+        new_node_temperature = np.max([temperature[0]*(1- 1*t/max_time),1])
+        new_edge_temperature = np.max([temperature[1]*(1- 1*t/max_time),1])
+        TNN.set_node_temperature(new_node_temperature)
+        TNN.set_edge_temperature(new_edge_temperature)
         
 # %%  
 from plotting import create_gif
@@ -72,6 +74,17 @@ plt.legend(fontsize=18)
 plt.tight_layout()
 plt.show()
 
+
+# %%
+from moviepy.editor import VideoFileClip
+
+# Load your GIF file
+gif_filename = 'random_NN_grid_100x100_node_temp_10_edge_temp_100_time_1000.gif'
+video_clip = VideoFileClip(gif_filename)
+
+# Save as an MPEG (The format will be inferred from the filename extension)
+mpeg_filename = 'output.mpeg'
+video_clip.write_videofile(mpeg_filename)
 # %%
 #Plot convergence
 
